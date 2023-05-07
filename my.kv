@@ -1,0 +1,150 @@
+WindowManager:
+    MainWindow:
+    SecondWindow:
+    ThirdWindow:
+    FourthWindow:
+    FifthWindow:
+    SixthWindow:
+    SeventhWindow:
+
+<MainWindow>:
+    name: "main"
+    GridLayout:
+        cols:1
+        Image:
+            source: 'logo.png'
+        Button:
+            text: "Begin"
+            on_release:
+                root.transition()
+                app.root.current = "demo selection"
+                root.manager.transition.direction = "left"
+
+
+<SecondWindow>:
+    name: "demo selection"    
+    GridLayout:
+        cols: 3
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "main" 
+                root.manager.transition.direction = "right"
+
+        Button:
+            text: "Begin"
+            on_release:
+                root.demo_selection()
+
+        Button:
+            text: "Next"
+            on_release:
+                app.root.current = "song selection" if root.manager.demo is not None else "demo selection"
+                root.manager.transition.direction = "left"
+                
+<ThirdWindow>:
+    name: "song selection"
+    GridLayout:
+        cols: 3
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "demo selection" 
+                root.manager.transition.direction = "right"
+
+        Button:
+            text: "Begin"
+            on_release:
+                root.song_selection()
+
+        Button:
+            text: "Next"
+            on_release:
+                app.root.current = "cover selection" if root.manager.orig_path is not None else "song selection"
+                root.manager.transition.direction = "left"
+
+<FourthWindow>:
+    name: "cover selection"
+    GridLayout:
+        cols: 3
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "song selection" 
+                root.manager.transition.direction = "right"
+
+        Button:
+            text: "Begin"
+            on_release:
+                root.cover_selection()
+
+        Button:
+            text: "Next"
+            on_release:
+                app.root.current = "strip audio" if root.manager.cover_path is not None else "cover selection"
+                root.manager.transition.direction = "left"
+
+
+<FifthWindow>:
+    name: "strip audio"
+    GridLayout:
+        cols: 3
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "cover selection" 
+                root.manager.transition.direction = "right"
+
+        Button:
+            text: "Begin"
+            on_release:
+                root.strip_audio()
+
+        Button:
+            text: "Next"
+            on_release:
+                app.root.current = "sync up" if root.manager.cover_vocals_path is not None else "strip audio"
+                root.manager.transition.direction = "left"
+
+<SixthWindow>:
+    name: "sync up"
+    GridLayout:
+        cols: 3
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "strip audio" 
+                root.manager.transition.direction = "right"
+
+        Button:
+            text: "Begin"
+            on_release:
+                root.find_correspondences()
+
+        Button:
+            text: "Next"
+            on_release:
+                app.root.current = "score" if root.manager.synced_path is not None else "sync up"
+                root.manager.transition.direction = "left"    
+
+
+<SeventhWindow>:
+    name: "score"
+    GridLayout:
+        cols: 3
+        Button:
+            text: "Go Back"
+            on_release:
+                app.root.current = "sync up" 
+                root.manager.transition.direction = "right"
+
+        Button:
+            text: "Begin"
+            on_release:
+                root.do_score()
+
+        Button:
+            text: "Restart"
+            on_release:
+                app.root.current = "main" 
+                root.manager.transition.direction = "left"    
