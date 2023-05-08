@@ -101,42 +101,41 @@ def plot_correspondences_matplotlib(path1,path2,wp):
     plt.savefig(plot_path)
     return plot_path
 
-def plot_correspondences(path1, path2, wp):
+def plot_correspondences(path1, path2, wp_s):
     x_1, x_2 = parse_sounds(path1, path2)
+    max_x = max(len(x_1),len(x_2))//sr
+    min_y = 2*float(min(min(x_1),min(x_2)))
+    max_y = 2*float(max(max(x_1),max(x_2)))
 
-    graph = Graph(xlabel='Time (s)', ylabel='Amplitude', x_ticks_minor=0.5,
-                  x_ticks_major=2, y_ticks_major=1, y_grid_label=True, x_grid_label=True,
-                  padding=5, xlog=False, ylog=False, x_grid=True, y_grid=True)
+    graph = Graph(xlabel='Time (s)', ylabel='Amplitude',x_grid_label=True,
+                  padding=5, x_ticks_major=5,xlog=False, ylog=False, x_grid=True, y_grid=True,ymin=min_y,ymax=max_y,xmax=max_x)
 
-    plot1 = MeshLinePlot(color=[1, 0, 0, 1])
-    plot2 = MeshLinePlot(color=[0, 0, 1, 1])
+    plot1 = MeshLinePlot(color=[1, 1, 1, 1]) 
+    plot2 = MeshLinePlot(color=[1, 1, 1, 1])
 
     # Add data to the plots
-    plot1.points = [(i * hop_size / sr, x_1[i]) for i in range(len(x_1))]
-    plot2.points = [(i * hop_size / sr, x_2[i]) for i in range(len(x_2))]
+    plot1.points = [(i/sr, 1+x_1[i]) for i in range(0,len(x_1),sr)]
+    plot2.points = [(i/sr, x_2[i]-1) for i in range(0,len(x_2),sr)]
     graph.add_plot(plot1)
     graph.add_plot(plot2)
 
-    # Add lines connecting corresponding points
+    # # Add lines connecting corresponding points
     arrows = 30
-    points_idx = np.int16(np.round(np.linspace(0, wp.shape[0] - 1, arrows)))
-
-    for tp1, tp2 in wp[points_idx] * hop_size / sr:
-        # tp1, tp2 = wp[i] * hop_size / sr
+    points_idx = np.int16(np.round(np.linspace(0, wp_s.shape[0], arrows+1)))[:-1]
+    
+    for tp1, tp2 in wp_s[points_idx]:
         plot1_point = plot1.points[int(tp1)]
         plot2_point = plot2.points[int(tp2)]
-        plot_color = [0, 1, 0, 1]
+        plot_color = [1, 0, 0, 1]
         plot = MeshLinePlot(color=plot_color)#, width=2)
 
         plot.points = [plot1_point, plot2_point]
         graph.add_plot(plot)
-        # graph.export_as_png()
     return graph
 
 if __name__ == "__main__":
     orig,cover = 'orig.wav','cover.wav'
     wp = align_chroma(orig,cover)[1]
-    # # print('HELLO',wp[0])
     graph = plot_correspondences(orig,cover,wp)
     dictate('time to plot')
     class SayHello(App):

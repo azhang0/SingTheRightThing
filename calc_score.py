@@ -5,7 +5,7 @@ import matplotlib.dates as mdates
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-from kivy_garden.graph import Graph, MeshLinePlot
+from kivy_garden.graph import Graph, MeshLinePlot,MeshStemPlot
 
 import scipy
 import librosa
@@ -124,14 +124,14 @@ def plot_pitch_matplotlib(score,points1,points2,most_work):
     return plot_path
 
 def plot_pitch(score, points1, points2, most_work):
-    graph = Graph(xlabel='Time (seconds)', ylabel='Pitch',size=(800,600))
+    graph = Graph(xlabel='Time (seconds)', ylabel='Pitch',size=(800,600),xmin=0,xmax=max(len(points1[0]),len(points2[0])))
     graph.title = f'Pitch: Original vs Yours\nScore: {str(score)}'
     graph.x_ticks_major = 1
     graph.y_ticks_major = 100
 
     # Add the original pitch data
     start1, pitch1 = points1
-    plot1 = MeshLinePlot(color=[0, 0, 1, 1])
+    plot1 = MeshLinePlot(color=[0.5, 0.5, 1, 1])
     plot1.points = [(start1[i], pitch1[i]) for i in range(len(start1))]
     graph.add_plot(plot1)
 
@@ -142,23 +142,11 @@ def plot_pitch(score, points1, points2, most_work):
     graph.add_plot(plot2)
 
     # Highlight the section where the user needs to work on improving their accuracy
-    highlight_plot = MeshLinePlot(color=[1, 0, 0, 0.3])
+    highlight_plot = MeshLinePlot(color=[1, 0, 0, 1])
     highlight_plot.points = [(most_work, graph.ymin), (most_work, graph.ymax), 
                              (most_work + 10, graph.ymax), (most_work + 10, graph.ymin)]
     graph.add_plot(highlight_plot)
-
-    caption = f'Your accuracy score is {score}. Good job!\nTry working on the section from {format_seconds(most_work, None)} to {format_seconds(most_work+10, None)} (highlighted in red).'
-    print(caption)
-
-    # Add the caption as a label at the bottom of the graph
-    label = Label(text=caption, font_size=20, halign='center', valign='middle')
-    graph.add_widget(label)
-
-    # Save the graph to an image file
-    plot_path = 'plots/final_score.png'
-    graph.export_to_png(plot_path)
-
-    return plot_path
+    return graph
 
 
 if __name__ == "__main__":

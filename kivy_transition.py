@@ -32,6 +32,7 @@ def control_menu(screen,prev=True,music=False,two_types=False):
         if 'original' in command:
             if not screen.original_toggle:
                 screen.sound.stop()
+                screen.ids.cover.state = "normal"
                 screen.ids.original.state = "down"
                 screen.ids.original.dispatch('on_release')
                 screen.original_toggle = True
@@ -39,6 +40,7 @@ def control_menu(screen,prev=True,music=False,two_types=False):
         elif 'cover' in command:
             if screen.original_toggle:
                 screen.sound.stop()
+                screen.ids.original.state = "normal"
                 screen.ids.cover.state = "down"
                 screen.ids.cover.dispatch('on_release')
                 screen.original_toggle = False
@@ -47,6 +49,7 @@ def control_menu(screen,prev=True,music=False,two_types=False):
             if not screen.full_toggle:
                 screen.sound.stop()
                 screen.sound = SoundLoader.load(screen.manager.cover_vocals_path)
+                screen.ids.snippet.state = "normal"
                 screen.ids.full.state = "down"
                 screen.ids.full.dispatch('on_release')
                 screen.full_toggle = True
@@ -56,6 +59,7 @@ def control_menu(screen,prev=True,music=False,two_types=False):
                 screen.sound = SoundLoader.load(screen.manager.cover_vocals_path)
                 screen.sound.seek(screen.most_diff)
                 Clock.schedule_once(screen.sound.stop(), 10)
+                screen.ids.full.state = "normal"
                 screen.ids.snippet.state = "down"
                 screen.ids.snippet.dispatch('on_release')
                 screen.full_toggle = False
@@ -171,8 +175,8 @@ class SixthWindow(Screen): #correspondence
 
     def find_correspondences(self):
         dictate('I will now use signal processing to map corresponding points in your performance with the original. This will also take a few seconds.')
-        wp_s,self.manager.wp = align_chroma(self.manager.orig_vocals_path,self.manager.cover_vocals_path)
-        self.manager.synced_graph = plot_correspondences(self.manager.orig_vocals_path,self.manager.cover_vocals_path,self.manager.wp)
+        self.manager.wp_s,wp = align_chroma(self.manager.orig_vocals_path,self.manager.cover_vocals_path)
+        self.manager.synced_graph = plot_correspondences(self.manager.orig_vocals_path,self.manager.cover_vocals_path,self.manager.wp_s)
         dictate('Done mapping correspondences.')
         self.add_widget(self.manager.synced_graph)
 
@@ -188,7 +192,7 @@ class SeventhWindow(Screen): #score
         score,points1,points2,self.most_diff = calc_2(self.manager.wp,orig_notes,cover_notes)
         caption = f'Your accuracy score is {score}. Good job!\nTry working on the section from {format_seconds(self.most_diff,None)} to {format_seconds(self.most_diff+10,None)} (highlighted in red).'
         dictate(caption)
-        self.manager.score_plot_path =  plot_pitch(score,points1,points2,self.most_diff)
+        self.manager.score_graph =  plot_pitch(score,points1,points2,self.most_diff)
 
 class EighthWindow(Screen): #playback
     pass

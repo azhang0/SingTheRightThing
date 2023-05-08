@@ -11,7 +11,15 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 from kivy_garden.graph import Graph, MeshLinePlot
 from math import sin
-
+from sync_song import *
+from kivy import Config
+from kivy.app import App
+from kivy.uix.widget import Widget
+from kivy.graphics import Color, Line
+import librosa
+from calc_score import *
+Config.set('graphics', 'gles_version', '3.0')
+Config.write()
 
 # Audio loads after
 class SayHello(App):
@@ -39,37 +47,62 @@ class SayHello(App):
                         color= '#00FFCE'
                         )
         self.window.add_widget(self.greeting)
-
-        
-
         #graph widget
         return self.window
-    #     self.built = False
 
-    # def build(self):
-    #     self.built = True
-    #     self.on_enter()
-    #     welcome_text =  'Welcome to SingTheRightThing, where you can receive feedback on your pitch and timing to become a better singer today! Before we get started, what is your name?'
-    #     dictate(welcome_text)
-    #     matplotlib.use("TkAgg")
+class MyVersion(App): #correspondences
+    def build(self):
+        #returns a window object with all it's widgets
+        self.window = GridLayout()
+        self.window.cols = 1
+        self.window.size_hint = (0.9, 0.7)
+        self.window.pos_hint = {"center_x": 0.5, "center_y":0.5}
+        wp_s,wp = align_chroma('orig.wav','cover.wav')
+        graph = plot_correspondences('orig.wav','cover.wav',wp_s)
+        self.window.add_widget(graph)
+        graph.export_to_png('plots/pls.png')
 
-    #     print("HELLO",matplotlib.get_backend())
+        # label widget
+        self.greeting = Label(
+                        text= "What's your name?",
+                        font_size= 16,
+                        color= '#00FFCE'
+                        )
+        self.window.add_widget(self.greeting)
+        #graph widget
+        return self.window
 
-    #     fig = plt.figure(figsize=(16, 8))
+class MyScore(App): #correspondences
+    def build(self):
+        #returns a window object with all it's widgets
+        self.window = GridLayout()
+        self.window.cols = 1
+        self.window.size_hint = (0.9, 0.7)
+        self.window.pos_hint = {"center_x": 0.5, "center_y":0.5}
+        wp_s,wp = align_chroma('orig.wav','cover.wav')
+        orig_notes,cover_notes = wav2notes('orig.wav'),wav2notes('cover.wav')
+        score,points1,points2,most_diff = calc_2(wp,orig_notes,cover_notes)
+        ##
+        graph = plot_pitch(score,points1,points2,most_diff)
+        
+        self.window.add_widget(graph)
 
-    #     name = record_and_transcribe(welcome_text,timeout=5)
-    #     # dictate(f'Hello {name}!')
-    #     # name = 'dick'
-    #     self.greeting.text = "Hello " + name + "!\n"
-    #     dictate(self.greeting.text)
-
-    #     return self.window
-    
-    # def on_enter(self):
-    #     return
+        # label widget
+        self.greeting = Label(
+                        text= "What's your name?",
+                        font_size= 16,
+                        color= '#00FFCE'
+                        )
+        self.window.add_widget(self.greeting)
+        #graph widget
+        return self.window
 
 
 # run Say Hello App Calss
 if __name__ == "__main__":
-    SayHello().run()
+    MyScore().run()
+    # dictate('DONE')
+    # SayHello().run()
+    # WaveformApp().run()
+    
     
