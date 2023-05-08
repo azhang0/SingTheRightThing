@@ -4,6 +4,14 @@ import matplotlib
 import matplotlib.pyplot as plt
 import librosa
 import librosa.display
+from kivy_garden.graph import Graph, MeshLinePlot
+from audio_modality import *
+
+from kivy.uix.gridlayout import GridLayout
+from kivy.app import App
+from math import sin
+from kivy.uix.label import Label
+
 
 hop_size = 2205
 sr = 22050
@@ -14,25 +22,6 @@ def parse_sounds(path1,path2):
     '''
     x_1, fs1 = librosa.load(path1)
     x_2, fs2 = librosa.load(path2)
-    # max_dur = max(len(x_1),len(x_2))
-    # # plt.figure("Waveplots",figsize=(16, 8))
-    # fig,(ax1,ax2) = plt.subplots(2,1)
-    # fig.suptitle('Waveplots')
-    # # plt.subplot(2, 1, 1)
-    # ax1.set_title("Original")
-    # ax1.set_xlim([0,max_dur])
-    # # plt.figure("Waveplot for " + path1,figsize=(16, 8))
-    # librosa.display.waveplot(x_1,ax=ax1)
-
-    # # plt.subplot(2, 1, 2)
-    # ax2.set_title("Yours")
-    # ax2.set_xlim([0,max_dur])
-
-
-    # # plt.figure("Waveplot for " + path2,figsize=(16, 8))
-    # librosa.display.waveplot(x_2,ax=ax2)
-    # plot_path = 'plots/waveforms.png'
-    # plt.savefig(plot_path)
     return x_1,x_2
 
 def extract_chroma(path1,path2):
@@ -41,8 +30,6 @@ def extract_chroma(path1,path2):
     '''
     x_1,x_2 = parse_sounds(path1,path2)
     n_fft = 4410
-    hop_size = 2205
-
     x_1_chroma = librosa.feature.chroma_stft(y=x_1, tuning=0, norm=2,
                                             hop_length=hop_size, n_fft=n_fft)
     x_2_chroma = librosa.feature.chroma_stft(y=x_2, tuning=0, norm=2,
@@ -67,14 +54,13 @@ def align_chroma(path1,path2):
     wp = wp[::-1] #sort by earliest start
     if swap:
         wp = [[a[1],a[0]] for a in wp] 
-    wp_s = np.asarray(wp) * hop_size / sr #convert to seconds
+    wp = np.asarray(wp)
+    wp_s = wp * hop_size / sr #convert to seconds
     return wp_s,wp
 
-def plot_correspondences(path1,path2,wp):
+def plot_correspondences_matplotlib(path1,path2,wp):
     x_1,x_2 = parse_sounds(path1,path2)
-    print("PARSED")
     fig = plt.figure(figsize=(16, 8))
-    print("FIG CREATED")
     # Plot x_1
     plt.subplot(2, 1, 1)
     librosa.display.waveplot(x_1)
@@ -115,9 +101,68 @@ def plot_correspondences(path1,path2,wp):
     plt.savefig(plot_path)
     return plot_path
 
-    
+def plot_correspondences(path1, path2, wp):
+    x_1, x_2 = parse_sounds(path1, path2)
+
+    graph = Graph(xlabel='Time (s)', ylabel='Amplitude', x_ticks_minor=0.5,
+                  x_ticks_major=2, y_ticks_major=1, y_grid_label=True, x_grid_label=True,
+                  padding=5, xlog=False, ylog=False, x_grid=True, y_grid=True)
+
+    plot1 = MeshLinePlot(color=[1, 0, 0, 1])
+    plot2 = MeshLinePlot(color=[0, 0, 1, 1])
+
+    # Add data to the plots
+    plot1.points = [(i * hop_size / sr, x_1[i]) for i in range(len(x_1))]
+    plot2.points = [(i * hop_size / sr, x_2[i]) for i in range(len(x_2))]
+    graph.add_plot(plot1)
+    graph.add_plot(plot2)
+
+    # Add lines connecting corresponding points
+    arrows = 30
+    points_idx = np.int16(np.round(np.linspace(0, wp.shape[0] - 1, arrows)))
+
+    for tp1, tp2 in wp[points_idx] * hop_size / sr:
+        # tp1, tp2 = wp[i] * hop_size / sr
+        plot1_point = plot1.points[int(tp1)]
+        plot2_point = plot2.points[int(tp2)]
+        plot_color = [0, 1, 0, 1]
+        plot = MeshLinePlot(color=plot_color)#, width=2)
+
+        plot.points = [plot1_point, plot2_point]
+        graph.add_plot(plot)
+        # graph.export_as_png()
+    return graph
+
 if __name__ == "__main__":
     orig,cover = 'orig.wav','cover.wav'
-    parse_sounds(orig,cover)
-    plot_correspondences(orig,cover)
+    wp = align_chroma(orig,cover)[1]
+    # # print('HELLO',wp[0])
+    graph = plot_correspondences(orig,cover,wp)
+    dictate('time to plot')
+    class SayHello(App):
+        def build(self):
+            #returns a window object with all it's widgets
+            self.window = GridLayout()
+            self.window.cols = 1
+            self.window.size_hint = (0.9, 0.7)
+            self.window.pos_hint = {"center_x": 0.5, "center_y":0.5}
+            
+            self.window.add_widget(graph)
+            graph.export_to_png('plots/pls.png')
+
+            # label widget
+            self.greeting = Label(
+                            text= "What's your name?",
+                            font_size= 16,
+                            color= '#00FFCE'
+                            )
+            self.window.add_widget(self.greeting)
+
+            
+
+            #graph widget
+            return self.window
+    SayHello().run()
+    
+    dictate('DONE')
 

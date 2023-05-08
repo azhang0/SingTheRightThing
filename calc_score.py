@@ -5,6 +5,7 @@ import matplotlib.dates as mdates
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
+from kivy_garden.graph import Graph, MeshLinePlot
 
 import scipy
 import librosa
@@ -103,7 +104,7 @@ def format_seconds(x,pos):
     seconds = f'0{seconds}' if seconds<10 else seconds
     return f'{minutes}:{seconds}'
 
-def plot_pitch(score,points1,points2,most_work):
+def plot_pitch_matplotlib(score,points1,points2,most_work):
     fig,ax = plt.subplots()
     fig.suptitle(f"Pitch: Original vs Yours\nScore: {str(score)}")
     start1,pitch1 = points1
@@ -122,12 +123,48 @@ def plot_pitch(score,points1,points2,most_work):
     plt.savefig(plot_path)
     return plot_path
 
+def plot_pitch(score, points1, points2, most_work):
+    graph = Graph(xlabel='Time (seconds)', ylabel='Pitch',size=(800,600))
+    graph.title = f'Pitch: Original vs Yours\nScore: {str(score)}'
+    graph.x_ticks_major = 1
+    graph.y_ticks_major = 100
+
+    # Add the original pitch data
+    start1, pitch1 = points1
+    plot1 = MeshLinePlot(color=[0, 0, 1, 1])
+    plot1.points = [(start1[i], pitch1[i]) for i in range(len(start1))]
+    graph.add_plot(plot1)
+
+    # Add the user's pitch data
+    start2, pitch2 = points2
+    plot2 = MeshLinePlot(color=[0, 1, 0, 1])
+    plot2.points = [(start2[i], pitch2[i]) for i in range(len(start2))]
+    graph.add_plot(plot2)
+
+    # Highlight the section where the user needs to work on improving their accuracy
+    highlight_plot = MeshLinePlot(color=[1, 0, 0, 0.3])
+    highlight_plot.points = [(most_work, graph.ymin), (most_work, graph.ymax), 
+                             (most_work + 10, graph.ymax), (most_work + 10, graph.ymin)]
+    graph.add_plot(highlight_plot)
+
+    caption = f'Your accuracy score is {score}. Good job!\nTry working on the section from {format_seconds(most_work, None)} to {format_seconds(most_work+10, None)} (highlighted in red).'
+    print(caption)
+
+    # Add the caption as a label at the bottom of the graph
+    label = Label(text=caption, font_size=20, halign='center', valign='middle')
+    graph.add_widget(label)
+
+    # Save the graph to an image file
+    plot_path = 'plots/final_score.png'
+    graph.export_to_png(plot_path)
+
+    return plot_path
 
 
 if __name__ == "__main__":
     orig,cover = './orig/vocals.wav','./cover/vocals.wav'
-    wp_s,wp = align_chroma(orig,cover,False)
+    wp_s,wp = align_chroma(orig,cover)
     ne1,ne2 = wav2notes(orig),wav2notes(cover)
     score,p1,p2,most_work = calc_2(np.array(wp),ne1,ne2)
     print("Score: ",score)
-    plot_pitch(p1,p2,most_work,score=score)
+    plot_pitch(score,p1,p2,most_work)

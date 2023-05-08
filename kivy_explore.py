@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+from kivy_garden.graph import Graph, MeshLinePlot
+from math import sin
 
 
 # Audio loads after
@@ -19,9 +21,16 @@ class SayHello(App):
         self.window.cols = 1
         self.window.size_hint = (0.9, 0.7)
         self.window.pos_hint = {"center_x": 0.5, "center_y":0.5}
-
-        # image widget
-        self.window.add_widget(Image(source="logo.png"))
+        graph = Graph(xlabel='X', ylabel='Y', x_ticks_minor=5,
+        x_ticks_major=25, y_ticks_major=1,
+        y_grid_label=True, x_grid_label=True, padding=5,
+        x_grid=True, y_grid=True, xmin=-0, xmax=100, ymin=-1, ymax=1)
+        plot = MeshLinePlot(color=[1, 0, 0, 1])
+        plot.points = [(x, sin(x / 10.)) for x in range(0, 101)]
+        graph.add_plot(plot)
+        self.window.add_widget(graph)
+        print("HERE",graph.size)
+        graph.export_to_png('plots/pls.png')
 
         # label widget
         self.greeting = Label(
@@ -31,7 +40,7 @@ class SayHello(App):
                         )
         self.window.add_widget(self.greeting)
 
-        plt.figure()
+        
 
         #graph widget
         return self.window

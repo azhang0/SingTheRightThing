@@ -43,15 +43,16 @@ def record_and_save(filename='cover.wav'):
         f.writeframes(audio_bytes)  # write the audio data to the file
     return filename
 
-def record_and_transcribe(query="",timeout=5,silence_ok=False,bool=False):
+def record_and_transcribe(query="",timeout=5,silence_ok=False,bool=False,beep=True):
     if query:
         dictate(query)
-    play_sound('beep.wav')
+    if beep:
+        play_sound('beep.wav')
     # obtain audio from the microphonef
     r = sr.Recognizer()
     with sr.Microphone() as source:
         try:
-            audio = r.listen(source,timeout=timeout)
+            audio = r.listen(source,timeout=timeout,phrase_time_limit=2)
         except:
             dictate(f"I'm sorry, I couldn't catch that. Please try again.")
             time.sleep(0.1)
@@ -76,7 +77,7 @@ def record_and_transcribe(query="",timeout=5,silence_ok=False,bool=False):
         else:
             dictate(f"I'm sorry, I couldn't catch that. Please try again.")
             time.sleep(0.1)
-            return record_and_transcribe(query,timeout,silence_ok,bool)
+            return record_and_transcribe(query,timeout,silence_ok,bool,beep)
 
 def dictate(mytext):
     language = 'en'
@@ -96,4 +97,4 @@ if __name__ == "__main__":
     # print("should see")
     # dictate('ha ha HA HA')
     # record_and_save('test.wav')
-    # record_and_transcribe("who are you?") 
+    record_and_transcribe("who are you?") 
