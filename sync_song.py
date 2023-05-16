@@ -131,7 +131,9 @@ def plot_correspondences(path1, path2, wp_s):
 
         plot.points = [plot1_point, plot2_point]
         graph.add_plot(plot)
-    return graph
+    graph_path = "sync.png"
+    graph.export_to_png(graph_path)
+    return graph_path
 
 if __name__ == "__main__":
     orig,cover = 'orig.wav','cover.wav'

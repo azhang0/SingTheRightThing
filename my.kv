@@ -2,9 +2,13 @@ WindowManager:
     MainWindow:
     SecondWindow:
     ThirdWindow:
+    ThirdWindowDemo:
     FourthWindow:
+    FourthWindowDemo:
     FifthWindow:
+    FakeSixthWindow:
     SixthWindow:
+    FakeSeventhWindow:
     SeventhWindow:
 
 <MainWindow>:
@@ -30,7 +34,7 @@ WindowManager:
             source: 'logo.png'
         
         Label:
-            text: 'Demo Selection'
+            text: root.demo_query
         
         GridLayout:
             cols:2
@@ -39,7 +43,7 @@ WindowManager:
                 text: "Yes"
                 on_release:
                     root.manager.demo = True
-                    app.root.current = "song selection" 
+                    app.root.current = "song selection demo" 
                     root.manager.transition.direction = "left"
 
             Button:
@@ -50,12 +54,6 @@ WindowManager:
                     app.root.current = "song selection" 
                     root.manager.transition.direction = "left"
 
-            # Button:
-            #     text: "Next"
-            #     on_release:
-            #         app.root.current = "song selection" if root.manager.demo is not None else "demo selection"
-            #         root.manager.transition.direction = "left"
-                    
 <ThirdWindow>:
     name: "song selection"
     GridLayout:
@@ -64,8 +62,20 @@ WindowManager:
             source: 'logo.png'
         
         Label:
-            text: 'Song Selection'
+            text: 'Follow the prompts to select your song.'
         
+        GridLayout:
+            cols:3
+            Label:
+                text: "YouTube link"
+            TextInput:
+                id: yt_url
+            Button:
+                text: "Submit"
+                on_release:
+                    root.process_link()
+
+
         GridLayout:
             cols: 4
             Button:
@@ -93,6 +103,43 @@ WindowManager:
                     app.root.current = "cover selection" if root.manager.orig_path is not None else "song selection"
                     root.manager.transition.direction = "left"
 
+<ThirdWindowDemo>:
+    name: "song selection demo"
+    GridLayout:
+        cols:1
+        Image:
+            source: 'logo.png'
+        
+        Label:
+            text: 'The demo song is Blank Space by Taylor Swift.'
+        
+        GridLayout:
+            cols: 4
+            Button:
+                id: previous
+                text: "Previous"
+                on_release:
+                    app.root.current = "demo selection" 
+                    root.manager.transition.direction = "right"
+
+            Button:
+                id: play
+                text: "Play"
+                on_release:
+                    pass
+            Button:
+                id: pause
+                text: "Pause"
+                on_release:
+                    pass
+                
+            Button:
+                id: next
+                text: "Next"
+                on_release:
+                    app.root.current = "cover selection demo" if root.manager.orig_path is not None else "song selection demo"
+                    root.manager.transition.direction = "left"
+
 <FourthWindow>:
     name: "cover selection"
     GridLayout:
@@ -101,8 +148,14 @@ WindowManager:
             source: 'logo.png'
         
         Label:
-            text: 'Cover Selection'
+            text: 'Record your cover here.'
         
+        Button:
+            id: record
+            text: "Record"
+            on_release:
+                root.record_cover()
+
         GridLayout:
             cols: 4
             Button:
@@ -130,6 +183,43 @@ WindowManager:
                     app.root.current = "strip audio" if root.manager.cover_path is not None else "cover selection"
                     root.manager.transition.direction = "left"
 
+<FourthWindowDemo>:
+    name: "cover selection demo"
+    GridLayout:
+        cols:1
+        Image:
+            source: 'logo.png'
+        
+        Label:
+            text: "The demo cover is from Ali Brustofski's YouTube channel."
+            size_hint_x: 0.7
+
+        GridLayout:
+            cols: 4
+            Button:
+                id: previous
+                text: "Previous"
+                on_release:
+                    app.root.current = "song selection demo" 
+                    root.manager.transition.direction = "right"
+
+            Button:
+                id: play
+                text: "Play"
+                on_release:
+                    pass
+            Button:
+                id: pause
+                text: "Pause"
+                on_release:
+                    pass
+
+            Button:
+                id: next
+                text: "Next"
+                on_release:
+                    app.root.current = "strip audio" if root.manager.cover_path is not None else "cover selection demo"
+                    root.manager.transition.direction = "left"
 
 <FifthWindow>:
     name: "strip audio"
@@ -139,15 +229,15 @@ WindowManager:
             source: 'logo.png'
         
         Label:
-            text: 'Audio Processing'
-        
+            text: root.explanation
+            size_hint_x: 0.7
+
         GridLayout:
             cols: 2
             ToggleButton:
                 id: original
                 text: "Original"
                 group: "toggle"
-                state: "down"
                 on_release: 
                     pass
             ToggleButton:
@@ -181,23 +271,20 @@ WindowManager:
                 id: next
                 text: "Next"
                 on_release:
-                    app.root.current = "sync up" if root.manager.cover_vocals_path is not None else "strip audio"
+                    app.root.current = "fake sync up" if root.manager.cover_vocals_path is not None else "strip audio"
                     root.manager.transition.direction = "left"
 
-<SixthWindow>:
-    name: "sync up"
+<FakeSixthWindow>:
+    name: "fake sync up"
     GridLayout:
         cols:1
         Image:
             source: 'logo.png'
         
         Label:
-            text: 'Song Synchronization'
+            text: root.explanation
+            size_hint_x: 0.7
 
-        Graph:
-            id: synced_graph
-            xlabel: 'Time (s)'
-            ylabel: 'Frequency (Hz)'
 
         GridLayout:
             cols: 2
@@ -213,10 +300,90 @@ WindowManager:
                 id: next
                 text: "Next"
                 on_release:
-                    app.root.current = "score" if root.manager.synced_graph is not None else "sync up"
+                    app.root.current = "sync up" 
                     root.manager.transition.direction = "left"    
 
+<SixthWindow>:
+    name: "sync up"
+    GridLayout:
+        cols:1
+        Image:
+            source: 'logo.png'
+            size_hint_x: 1
+        
+        Label:
+            text: 'Synced Up Songs (Original on top)'
 
+        Image:
+            size_hint_x: 1
+            source: root.manager.synced_graph
+
+        GridLayout:
+            cols: 2
+            Button:
+                id: previous
+                text: "Previous"
+                on_release:
+                    app.root.current = "strip audio" 
+                    root.manager.transition.direction = "right"
+
+
+            Button:
+                id: next
+                text: "Next"
+                on_release:
+                    app.root.current = "fake score" 
+                    root.manager.transition.direction = "left"    
+<FakeSeventhWindow>:
+    name: "fake score"
+    GridLayout:
+        cols:1
+        Image:
+            source: 'logo.png'
+        
+        Label:
+            text: 'I will now calculate your score.'
+        GridLayout:
+            cols: 2
+            ToggleButton:
+                id: full
+                text: "Full Song"
+                group: "toggle"
+                # state: "down"
+                on_release: 
+                    pass
+            ToggleButton:
+                id: snippet
+                text: "Red Part"
+                group: "toggle"
+                on_release: 
+                    pass    
+        GridLayout:
+            cols: 4
+            Button:
+                id: previous
+                text: "Previous"
+                on_release:
+                    app.root.current = "sync up" 
+                    root.manager.transition.direction = "right"
+
+            Button:
+                id: play
+                text: "Play"
+                on_release:
+                    pass
+            Button:
+                id: pause
+                text: "Pause"
+                on_release:
+                    pass
+
+            Button:
+                id: next
+                text: "Restart"
+                on_release:
+                    app.root.current = "score" 
+                    root.manager.transition.direction = "left"    
 <SeventhWindow>:
     name: "score"
     GridLayout:
@@ -226,6 +393,11 @@ WindowManager:
         
         Label:
             text: 'Score'
+
+        Image:
+            source: root.manager.score_graph
+            size_hint_x: 1
+
         GridLayout:
             cols: 2
             ToggleButton:
@@ -242,7 +414,7 @@ WindowManager:
                 on_release: 
                     pass    
         GridLayout:
-            cols: 3
+            cols: 4
             Button:
                 id: previous
                 text: "Previous"

@@ -49,17 +49,10 @@ def calc_2(wp,ne1,ne2):
     for idx,(t1,t2) in enumerate(wp):
         while i<len(ne1) and ne1[i][0]+eps<t1:
             i += 1
-            # if i==len(ne1):
-            #     points1 = (plot_start1,plot_pitch1)
-            #     points2 = (plot_start2,plot_pitch2)
-            #     return 100-float(sum(diff)/len(diff)),points1,points2
         
         while j<len(ne2) and ne2[j][0]+eps<t2:
             j += 1
-            # if j==len(ne2):
-            #     points1 = (plot_start1,plot_pitch1)
-            #     points2 = (plot_start2,plot_pitch2)
-            #     return 100-float(sum(diff)/len(diff)),points1,points2
+
         if i==len(ne1) or j==len(ne2):
             break
         start1,end1,pitch1,amplitude1,_ = ne1[i]
@@ -81,7 +74,7 @@ def calc_2(wp,ne1,ne2):
     points1 = (plot_start1,plot_pitch1)
     points2 = (plot_start2,plot_pitch2)
     most_work_needed = calc_most_work(diff,time2)
-    score = 100-0.5*float(sum(diff)/len(diff))
+    score = 100-0.5*float(sum(diff)/len(diff))/0.87
     score = round(score*100)/100.0 #round to 2 decimals
     return score,points1,points2,most_work_needed
 
@@ -112,11 +105,9 @@ def plot_pitch_matplotlib(score,points1,points2,most_work):
     start2,pitch2 = points2
     plt.plot_date(start2,pitch2,'go',label="Yours")
     ax.xaxis.set_major_formatter(ticker.FuncFormatter(format_seconds))
-
     caption = f'Your accuracy score is {score}. Good job!\nTry working on the section from {format_seconds(most_work,None)} to {format_seconds(most_work+10,None)} (highlighted in red).'
     print(caption)
     plt.annotate(caption, xy=(0.5, -0.15), xycoords='axes fraction', fontsize=10, ha='center')
-
     plt.legend()
     plt.axvspan(most_work, most_work+10, alpha=0.3, color='red')
     plot_path = 'plots/final_score.png'
@@ -146,7 +137,9 @@ def plot_pitch(score, points1, points2, most_work):
     highlight_plot.points = [(most_work, graph.ymin), (most_work, graph.ymax), 
                              (most_work + 10, graph.ymax), (most_work + 10, graph.ymin)]
     graph.add_plot(highlight_plot)
-    return graph
+    graph_path = 'score.png'
+    graph.export_to_png(graph_path)
+    return graph_path
 
 
 if __name__ == "__main__":

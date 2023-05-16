@@ -12,8 +12,6 @@ import multiprocessing
 from multiprocessing import Process
 from contextlib import contextmanager
 
-
-
 YES = ["sure","yes","okay","great","good","yeah"]
 NO = ["no","nah"]
 
@@ -90,11 +88,4 @@ def dictate(mytext):
 
 if __name__ == "__main__":
     print("Number of cpu : ", multiprocessing.cpu_count())
-    # sys.stdout = open('output.txt', 'w')
-    # with suppress_stdout():
-    #     record_and_transcribe()
-    #     print('shouldnt see')
-    # print("should see")
-    # dictate('ha ha HA HA')
-    # record_and_save('test.wav')
     record_and_transcribe("who are you?") 

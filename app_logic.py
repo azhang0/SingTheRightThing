@@ -6,11 +6,8 @@ from audio_modality import *
 
 def try_this():
     demo_response = start_up()
-
     orig,cover = select_song(demo_response),select_cover(demo_response)
-
-    orig,cover = extract_vocals(orig,cover)
-        
+    orig,cover = extract_vocals(orig,cover)        
     analyze(orig,cover)
 
 def start_up():
@@ -79,34 +76,6 @@ def analyze(orig,cover):
     dictate('I will now calculate your score')
     score,points1,points2,most_diff = calc_2(wp,orig_notes,cover_notes)
     print(f"\n\nGreat job! Your score is {score}. See the plot for practice suggestions.")
-    # plot_pitch(points1,points2,most_diff,score)
-
-
-    
-
-# # orig = youtube2wav(orig_link)
-# print('\n\nExtracting vocals...')
-# orig = 'orig.wav'
-# cover = 'cover.wav'
-# orig = voice_only(orig)
-# cover = voice_only(cover)
-
-# print('\n\nAnalyzing both samples...')
-
-# orig_notes,cover_notes = wav2notes(orig),wav2notes(cover)
-# print('\n\nFinding correspondences...')
-# wp_s,wp = align_chroma(orig,cover,True)
-# plot_correspondences(orig,cover,np.array(wp))
-# print('\n\nCalculating your score...')
-# res = calc_2(wp,orig_notes,cover_notes)
-# score,points1,points2,most_diff = res
-# print(f"\n\nGreat job on {song_name}! Your score is {score}. See the plot for practice suggestions.")
-# plot_pitch(points1,points2,most_diff,score)
-
-# Blank Space
-# https://www.youtube.com/watch?v=HVlSWs8-LjU&pp=ygUYYmxhbmsgc3BhY2UgdGF5bG9yIHN3aWZ0
-# cover.wav
-# try_this()
 
 if __name__=="__main__":
     try_this()
